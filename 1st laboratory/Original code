@@ -1,0 +1,79 @@
+
+-------Original code(Оригинальный код)---------------
+using System;
+using System.Collections.Generic;
+
+public class UsersHolderSingleton : LoggerProvider
+{
+    private static string TAG = "ClassTag";
+
+    // ---------------- Const ----------------
+    public static class Const
+    {
+        public const int INDEX = 1;
+    }
+
+    // ---------------- UserData ----------------
+    public class UserData
+    {
+        public int id;
+        public string name;
+        public string phoneNumber;
+
+        public UserData(int id, string name, string phoneNumber)
+        {
+            this.id = id;
+            this.name = name;
+            this.phoneNumber = phoneNumber;
+        }
+    }
+
+    // ---------------- Repository ----------------
+    public interface Repository
+    {
+        List<UserData> Get();
+    }
+
+    // ---------------- Singleton ----------------
+    private static volatile UsersHolderSingleton instance;
+
+    private Repository usersRepo;
+
+    private UsersHolderSingleton(Repository usersRepo)
+    {
+        this.usersRepo = usersRepo;
+    }
+
+    public static UsersHolderSingleton GetInstance(Repository usersRepo)
+    {
+        if (instance == null)
+        {
+            instance = new UsersHolderSingleton(usersRepo);
+        }
+        return instance;
+    }
+
+    public List<UserData> GetUsers()
+    {
+        return usersRepo.Get();
+    }
+
+    public void Update(int id, string newPhone)
+    {
+        string formattedPhone = string.Format("РўРµР»РµС„РѕРЅ: {0}", newPhone);
+
+        for (int i = Const.INDEX; i < GetUsers().Count; i++)
+        {
+            if (GetUsers()[i].id == id)
+            {
+                UserData copy = new UserData(
+                    GetUsers()[i].id,
+                    GetUsers()[i].name,
+                    newPhone
+                );
+                GetUsers()[i] = copy;
+                logger.Tag(TAG).D(GetUsers()[i]);
+            }
+        }
+    }
+}
