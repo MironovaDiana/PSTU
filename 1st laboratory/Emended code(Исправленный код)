@@ -27,7 +27,7 @@ public class UsersHolderSingleton : LoggerProvider //LoggerProvider - позво
             this.phoneNumber = phoneNumber;
         }
 
-        // При необходимости добавлено строковое представление для логирования
+        // Добавлено строковое представление для логирования(журналирования)
         public override string ToString() => $"ID: {id}, Name: {name}, Phone: {phoneNumber}";
     }
 
@@ -48,7 +48,7 @@ public class UsersHolderSingleton : LoggerProvider //LoggerProvider - позво
         this.users = usersRepo.Get(); // Инициализация кэша пользователей
     }
 
-    public static UsersHolderSingleton GetInstance(IRepository usersRepo) // Исправлено: использование интерфейса
+    public static UsersHolderSingleton GetInstance(IRepository usersRepo) 
     {
         if (instance == null)
         {
@@ -76,8 +76,8 @@ public class UsersHolderSingleton : LoggerProvider //LoggerProvider - позво
             {
                 // Обновляем телефон без создания нового объекта
                 users[i].phoneNumber = formattedPhone;
-                logger?.Tag(TAG)?.D(users[i].ToString()); // Фиксация данных после обнавления
-                break; // Прерываем цикл после обновления
+                logger?.Tag(TAG)?.D(users[i].ToString()); // Фиксация(журналирование) данных после обнавления
+                break;
             }
         }
     }
