@@ -4,7 +4,7 @@ using System.Collections.Generic;
 public class UsersHolderSingleton : LoggerProvider //LoggerProvider - позволяет вести журнал событий
 {
     private static string TAG = "ClassTag";
-    private static readonly object lockObject = new object(); // Добавлен объект для блокировки
+    private static readonly object lockObject = new object(); // Добавлен объект для блокировки многопоточности
     private List<UserData> users; // Кэшируем список пользователей
 
     // ---------------- Const ----------------
