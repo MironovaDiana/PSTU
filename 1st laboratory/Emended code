@@ -1,0 +1,84 @@
+using System;
+using System.Collections.Generic;
+
+public class UsersHolderSingleton : LoggerProvider //LoggerProvider - позволяет вести журнал событий
+{
+    private static string TAG = "ClassTag";
+    private static readonly object lockObject = new object(); // Добавлен объект для блокировки
+    private List<UserData> users; // Кэшируем список пользователей
+
+    // ---------------- Const ----------------
+    public static class Const
+    {
+        public const int INDEX = 0; // Ииндексация начинаться с 0
+    }
+
+    // ---------------- UserData ----------------
+    public class UserData
+    {
+        public int id;
+        public string name;
+        public string phoneNumber;
+
+        public UserData(int id, string name, string phoneNumber)
+        {
+            this.id = id;
+            this.name = name;
+            this.phoneNumber = phoneNumber;
+        }
+
+        // При необходимости добавлено строковое представление для логирования
+        public override string ToString() => $"ID: {id}, Name: {name}, Phone: {phoneNumber}";
+    }
+
+    // ---------------- IRepository ----------------
+   // Некорректное использование интерфейсов
+    public interface IRepository
+    {
+        List<UserData> Get();
+    }
+
+    // ---------------- Singleton ----------------
+    private static volatile UsersHolderSingleton instance; //уникальный экземпляр класса
+    private IRepository usersRepo; 
+
+    private UsersHolderSingleton(IRepository usersRepo) 
+    {
+        this.usersRepo = usersRepo;
+        this.users = usersRepo.Get(); // Инициализация кэша пользователей
+    }
+
+    public static UsersHolderSingleton GetInstance(IRepository usersRepo) // Исправлено: использование интерфейса
+    {
+        if (instance == null)
+        {
+            lock (lockObject) // Предотвращает одновременное создание экземпляра несеолькими потоками
+            {
+                if (instance == null)
+                    instance = new UsersHolderSingleton(usersRepo);
+            }
+        }
+        return instance;
+    }
+
+    public List<UserData> GetUsers()
+    {
+        return users; // Возвращаем кэшированный список
+    }
+
+    public void Update(int id, string newPhone)
+    {
+        string formattedPhone = string.Format("Телефон: {0}", newPhone);
+
+        for (int i = Const.INDEX; i < users.Count; i++) // Работаем с кэшированным списком
+        {
+            if (users[i].id == id)
+            {
+                // Обновляем телефон без создания нового объекта
+                users[i].phoneNumber = formattedPhone;
+                logger?.Tag(TAG)?.D(users[i].ToString()); // Фиксация данных после обнавления
+                break; // Прерываем цикл после обновления
+            }
+        }
+    }
+}
